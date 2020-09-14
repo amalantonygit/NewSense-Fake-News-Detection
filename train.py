@@ -3,21 +3,17 @@
 #called only during the training process
 
 def trainer():
-    import string
+    
     print("Inside train.py file")
-    import numpy as np
     import pandas as pd
-    import os
-    import re
-    import matplotlib.pyplot as plt
-    import seaborn as sns
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, f1_score
     from sklearn.naive_bayes import MultinomialNB
     from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-    from sklearn.pipeline import Pipeline
     from sklearn.ensemble import RandomForestClassifier
-    seed = 4353
+    from textpreprocessor import tpp
+    from nltk.stem.wordnet import WordNetLemmatizer
+    seed = 2510 
     true_data = pd.read_csv('datasets/True.csv')
     fake_data = pd.read_csv('datasets/Fake.csv')
     true_data['label']=1
@@ -33,42 +29,10 @@ def trainer():
     x_fulltext = x_fulltext.reset_index().drop(['index'], axis=1)
     x_fulltext = x_fulltext.values.tolist()
 
-    def remove_punct(x_data):
-        string_lwr = x_data.lower()
-        translation_table = dict.fromkeys(map(ord, string.punctuation),' ')
-        return string_lwr.translate(translation_table)
-    x_fulltext_clear_punct = []
-    for i in range(len(x_fulltext)):
-        test_data = remove_punct(str(x_fulltext[i]))
-        x_fulltext_clear_punct.append(test_data)
-    import re
-    import nltk
-    from nltk.corpus import stopwords
-    from nltk.tokenize import word_tokenize, sent_tokenize
-    from nltk.stem.wordnet import WordNetLemmatizer
-    from wordcloud import WordCloud, STOPWORDS
-    import string
-    # function to remove stopwords
-    def remove_stopwords(x_data):
-        pattern = re.compile(r'\b(' + r'|'.join(stopwords.words('english')) + r')\b\s*')
-        string2 = pattern.sub(' ', x_data)
-        return string2
-    
-    x_fulltext_clear_stopwords = []
-    for i in range(len(x_fulltext)):
-        test_data = remove_stopwords(x_fulltext_clear_punct[i])
-        x_fulltext_clear_stopwords.append(test_data)
-        
-    # function for tokenizing
-    def tokenize_words(x_data):
-        words = nltk.word_tokenize(x_data)
-        return words
-    
-    x_fulltext_tokenized = []
-    for i in range(len(x_fulltext)):
-        test_data = tokenize_words(x_fulltext_clear_stopwords[i])
-        x_fulltext_tokenized.append(test_data)
-        
+
+    #calling tpp function from textprocessor
+    x_fulltext_tokenized=tpp(x_fulltext)
+         
     # function for lemmatizing
     lemmatizer = WordNetLemmatizer()
     def lemmatize_words(x_data):
@@ -149,5 +113,5 @@ def trainer():
     print("Accuracy : " , rfc_accuracy , " %")
     print("f1_score : " , rfc_f1)
 
-
+trainer()
 
